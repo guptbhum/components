@@ -87,7 +87,6 @@ export default function InternalWizard({
   const onPreviousClick = () => navigationEvent(actualActiveStepIndex - 1, 'previous');
   const onPrimaryClick = () => {
     funnelNextOrSubmitAttempt();
-
     if (isLastStep) {
       funnelSubmit();
       fireNonCancelableEvent(onSubmit);

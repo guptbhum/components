@@ -49,7 +49,7 @@ export function useTableInteractionMetrics({
       const loadingDuration = performance.now() - loadingStartTime.current;
       loadingStartTime.current = null;
 
-      PerformanceMetrics.tableInteraction({
+      PerformanceMetrics.tableInteraction?.({
         userAction: capturedUserAction.current ?? '',
         interactionTime: Math.round(loadingDuration),
         interactionMetadata: undefined,

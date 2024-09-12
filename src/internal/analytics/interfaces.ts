@@ -129,6 +129,32 @@ export interface SubStepConfiguration {
   subStepIdentifier?: string;
 }
 
+// Interface for task completion method props
+export interface TaskCompletionDataProps {
+  // Unique identifier for the task aka funnelInteractionId.
+  // Default: ''
+  taskInteractionId: string;
+  // Time taken to respond to customers after customers submit the form
+  // in milliseconds
+  timeToRespondAfterFormSubmit: number;
+  // Task name identifier to identify the task aka funnelName
+  // Default: ''
+  taskIdentifier?: string;
+  // To identify create or edit flow
+  // Default: ''
+  taskFlowType?: string;
+  //"single-page" | "multi-page"
+  // Default: ''
+  taskType?: FunnelType;
+  // Unique instance identifier for the component.
+  // Default: ''
+  instanceIdentifier?: string;
+  // Additional metadata related to completion such as success or error
+  completionMetadata?: string;
+}
+
+export type TaskCompletionDataMethod = (props: TaskCompletionDataProps) => void;
+
 // Define the interface using the method type
 export interface IFunnelMetrics {
   funnelStart: FunnelStartMethod;
@@ -153,5 +179,6 @@ export interface IFunnelMetrics {
 }
 
 export interface IPerformanceMetrics {
-  tableInteraction: TableInteractionMethod;
+  tableInteraction?: TableInteractionMethod;
+  taskCompletionData?: TaskCompletionDataMethod;
 }
