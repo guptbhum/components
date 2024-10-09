@@ -86,8 +86,9 @@ function PortaledModal({
   const metadataAttribute = __injectAnalyticsComponentMetadata
     ? getAnalyticsMetadataAttribute({ component: analyticsComponentMetadata })
     : {};
-  const performanceMetricLogged = useRef<boolean>(false);
+  // const performanceMetricLogged = useRef<boolean>(false);
   const loadStartTime = useRef<number>(0);
+  const loadCompleteTime = useRef<number>(0);
   const componentLoadingCount = useRef<number>(0);
   // enable body scroll and restore focus if unmounting while visible
   useEffect(() => {
@@ -96,34 +97,36 @@ function PortaledModal({
     };
   }, []);
 
+  const resetModalPerformanceData = () => {
+    loadStartTime.current = performance.now();
+    // performanceMetricLogged.current = false;
+    loadCompleteTime.current = 0;
+  };
+
   // enable / disable body scroll
   useEffect(() => {
-    /**
-     * Resets performanceMetricLogged
-     * PerformanceMetricLogged false and componentLoadingCount 0,
-     * indicates that there were no components loading in the modal and it was loaded instantly.
-     * In that case emit 0 as timeToContentReadyInModal
-     */
-    const resetModalPerformanceData = () => {
-      if (loadStartTime.current !== 0 && componentLoadingCount.current === 0 && !performanceMetricLogged.current) {
+    const emitModalContentReadyMetric = () => {
+      if (componentLoadingCount.current === 0 && loadStartTime.current !== null) {
+        const timeToContentReadyInModal =
+          loadCompleteTime.current !== 0 ? loadCompleteTime.current - loadStartTime.current : 0;
+        console.log('emitting metric', timeToContentReadyInModal);
         PerformanceMetrics.modalPerformanceData({
-          timeToContentReadyInModal: 0,
+          timeToContentReadyInModal,
           instanceIdentifier: instanceUniqueId,
         });
+        componentLoadingCount.current = 0;
       }
-      loadStartTime.current = 0;
-      performanceMetricLogged.current = false;
     };
     if (visible) {
       disableBodyScrolling();
-      loadStartTime.current = performance.now();
+      resetModalPerformanceData();
     } else {
       enableBodyScrolling();
-      resetModalPerformanceData();
+      emitModalContentReadyMetric();
     }
     return () => {
       if (!visible) {
-        resetModalPerformanceData();
+        emitModalContentReadyMetric();
       }
     };
   }, [visible, instanceUniqueId]);
@@ -170,10 +173,8 @@ function PortaledModal({
         <ModalContext.Provider
           value={{
             isInModal: true,
-            loadStartTime,
-            performanceMetricLogged,
             componentLoadingCount,
-            instanceIdentifier: instanceUniqueId,
+            loadCompleteTime,
           }}
         >
           <div
