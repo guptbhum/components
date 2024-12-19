@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { Box, Button, Checkbox, SpaceBetween } from '~components';
 
@@ -8,26 +8,26 @@ import { IframeWrapper } from '../utils/iframe-wrapper';
 
 function InnerApp() {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(entries => {
-      console.log('ResizeObserver fired:', entries);
-    });
-    resizeObserver.observe(ref.current!);
+  // useEffect(() => {
+  //   const resizeObserver = new ResizeObserver(entries => {
+  //     console.log('ResizeObserver fired:', entries);
+  //   });
+  //   resizeObserver.observe(ref.current!);
 
-    const intersectionObserver = new IntersectionObserver(entries => {
-      console.log('IntersectionObserver fired:', entries);
-    });
-    intersectionObserver.observe(ref.current!);
+  //   const intersectionObserver = new IntersectionObserver(entries => {
+  //     console.log('IntersectionObserver fired:', entries);
+  //   });
+  //   intersectionObserver.observe(ref.current!);
 
-    return () => {
-      resizeObserver.disconnect();
-      intersectionObserver.disconnect();
-    };
-  }, []);
+  //   return () => {
+  //     resizeObserver.disconnect();
+  //     intersectionObserver.disconnect();
+  //   };
+  // }, []);
 
   return (
     <div ref={ref} style={{ height: 300, background: 'yellow', padding: 10 }}>
-      This is the iframe
+      <Button variant="primary">Primary button</Button>
     </div>
   );
 }

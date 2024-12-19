@@ -9,15 +9,29 @@ import { useEffectOnUpdate } from '../use-effect-on-update';
 import { useRandomId } from '../use-unique-id';
 
 const EVALUATE_COMPONENT_VISIBILITY_EVENT = 'awsui-evaluate-component-visibility';
-
 /**
  * This hook manages a boolean state (`evaluateComponentVisibility`) that toggles
  * whenever a custom DOM event (`EVALUATE_COMPONENT_VISIBILITY_EVENT`) is triggered.
  *
  * @returns
  */
-const useEvaluateComponentVisibility = () => {
+const useEvaluateComponentVisibility = (elementRef: React.RefObject<HTMLElement>) => {
   const [evaluateComponentVisibility, setEvaluateComponentVisibility] = useState(false);
+
+  useEffect(() => {
+    const intersectionObserver = new IntersectionObserver(entries => {
+      console.log('IntersectionObserver fired from Performance:', entries);
+      setEvaluateComponentVisibility(prev => !prev);
+    });
+
+    if (elementRef.current) {
+      intersectionObserver.observe(elementRef.current);
+    }
+
+    return () => {
+      intersectionObserver.disconnect();
+    };
+  }, [elementRef]);
 
   useEffect(() => {
     const handleEvaluateComponentVisibility = () => {
@@ -49,7 +63,8 @@ export function usePerformanceMarks(
   const id = useRandomId();
   const { isInModal } = useModalContext();
   const attributes = useDOMAttribute(elementRef, 'data-analytics-performance-mark', id);
-  const evaluateComponentVisibility = useEvaluateComponentVisibility();
+  const evaluateComponentVisibility = useEvaluateComponentVisibility(elementRef);
+
   useEffect(() => {
     if (!enabled || !elementRef.current || isInModal) {
       return;
@@ -75,6 +90,7 @@ export function usePerformanceMarks(
   }, []);
 
   useEffectOnUpdate(() => {
+    console.log(evaluateComponentVisibility);
     if (!enabled || !elementRef.current || isInModal) {
       return;
     }
@@ -87,6 +103,7 @@ export function usePerformanceMarks(
       return;
     }
     const updatedMarkName = `${name}Updated`;
+    console.log('emitting mark');
     performance.mark(updatedMarkName, {
       detail: {
         source: 'awsui',
